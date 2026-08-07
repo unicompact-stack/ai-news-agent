@@ -1,6 +1,12 @@
-# Runtime-generated logs (not tracked)
-**/memory/????-??-??.md
-**/memory/weekly/????-??.md
+# Промежуточные данные (генерируются при каждом запуске)
+data/raw_news.json
+data/analyzed_news.json
 
-# macOS
-.DS_Store
+# История публикаций НЕ игнорируем — она нужна для защиты от повторов между запусками
+
+# Python
+__pycache__/
+*.pyc
+
+# Секреты (НИКОГДА не коммитить!)
+.env
