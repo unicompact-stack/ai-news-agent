@@ -1,4 +1,17 @@
-/* ===== AI News Agent — Стили блога ===== */
+/* ===== AI Office — Стили отчётов ===== */
+:root {
+  --bg: #000c1e;
+  --surface: rgba(7, 24, 44, .84);
+  --teal: #0deef3;
+  --blue: #448aff;
+  --green: #6bcb77;
+  --purple: #c792ea;
+  --text: rgba(255, 255, 255, .9);
+  --muted: rgba(255, 255, 255, .48);
+  --faint: rgba(255, 255, 255, .24);
+  --border: rgba(255, 255, 255, .09);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -7,8 +20,8 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: #0d1117;
-  color: #e6edf3;
+  background: var(--bg);
+  color: var(--text);
   line-height: 1.6;
   min-height: 100vh;
   display: flex;
@@ -17,233 +30,142 @@ body {
 
 .container {
   width: 100%;
-  max-width: 1100px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 0 20px;
 }
 
 /* ===== Header ===== */
 header {
-  background: linear-gradient(135deg, #161b22 0%, #1f6feb22 100%);
-  border-bottom: 1px solid #21262d;
-  padding: 32px 0;
+  background: linear-gradient(135deg, rgba(7, 24, 44, .9) 0%, rgba(13, 238, 243, .05) 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 28px 0;
   text-align: center;
 }
 
 .logo {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 700;
-  color: #58a6ff;
+  color: var(--teal);
   text-decoration: none;
+  letter-spacing: 1px;
 }
 
 .subtitle {
-  margin-top: 8px;
-  color: #8b949e;
-  font-size: 15px;
+  margin-top: 6px;
+  color: var(--faint);
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 /* ===== Main ===== */
 main {
   flex: 1;
-  padding: 32px 0 48px;
+  padding: 28px 0 48px;
 }
 
-/* ===== Hero (Главное за день) ===== */
+/* ===== Hero ===== */
 .hero {
-  margin-bottom: 32px;
+  margin-bottom: 28px;
 }
 
 .hero h2 {
-  color: #58a6ff;
-  font-size: 22px;
-  margin-bottom: 16px;
-}
-
-.ai-summary {
-  background: linear-gradient(135deg, #1f6feb15 0%, #1f6feb05 100%);
-  border: 1px solid #1f6feb44;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-.ai-summary p {
-  color: #c9d1d9;
-  font-size: 15px;
-  line-height: 1.7;
-}
-
-.hero-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-@media (max-width: 768px) {
-  .hero-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.hero-card {
-  background: #161b22;
-  border: 1px solid #21262d;
-  border-radius: 12px;
-  overflow: hidden;
-  transition: border-color 0.2s, transform 0.2s;
-}
-
-.hero-card:hover {
-  border-color: #58a6ff;
-  transform: translateY(-2px);
-}
-
-.hero-card:first-child {
-  grid-column: 1 / -1;
-}
-
-.hero-card:first-child .hero-card-image {
-  height: 280px;
-}
-
-.hero-card-image {
-  height: 160px;
-  overflow: hidden;
-  background: #1c2128;
-}
-
-.hero-card-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.hero-card-body {
-  padding: 16px;
-}
-
-.hero-card-body .badge {
-  margin-bottom: 8px;
-  display: inline-block;
-}
-
-.hero-card-body h3 {
+  color: var(--teal);
   font-size: 18px;
-  line-height: 1.4;
   margin-bottom: 8px;
 }
 
-.hero-card:first-child .hero-card-body h3 {
-  font-size: 22px;
+.hero p {
+  color: var(--muted);
+  font-size: 13px;
 }
 
-.hero-card-body h3 a {
-  color: #c9d1d9;
-  text-decoration: none;
-}
-
-.hero-card-body h3 a:hover {
-  color: #58a6ff;
-  text-decoration: underline;
-}
-
-.hero-card-body p {
-  color: #8b949e;
-  font-size: 14px;
-  margin-bottom: 12px;
-}
-
-.hero-card-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
-}
-
-/* ===== Отчёты (главная) ===== */
+/* ===== Reports list ===== */
 .reports-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .report-card {
-  background: #161b22;
-  border: 1px solid #21262d;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 18px 20px;
+  padding: 16px 18px;
   text-decoration: none;
   color: inherit;
   transition: border-color 0.2s, transform 0.2s;
   display: block;
+  backdrop-filter: blur(10px);
 }
 
 .report-card:hover {
-  border-color: #58a6ff;
-  transform: translateY(-2px);
+  border-color: rgba(13, 238, 243, .3);
+  transform: translateY(-1px);
 }
 
 .report-card h3 {
-  color: #c9d1d9;
-  font-size: 17px;
+  color: var(--text);
+  font-size: 15px;
   margin-bottom: 4px;
 }
 
 .report-card p {
-  color: #8b949e;
-  font-size: 13px;
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .empty {
-  background: #161b22;
-  border: 1px dashed #30363d;
+  background: var(--surface);
+  border: 1px dashed rgba(255, 255, 255, .06);
   border-radius: 10px;
   padding: 40px;
   text-align: center;
-  color: #8b949e;
+  color: var(--faint);
+  font-size: 13px;
 }
 
-/* ===== Заголовок отчёта ===== */
+/* ===== Report header ===== */
 .report-header {
   margin-bottom: 24px;
   padding-bottom: 16px;
-  border-bottom: 1px solid #21262d;
+  border-bottom: 1px solid var(--border);
 }
 
 .report-header h1 {
-  font-size: 24px;
-  color: #e6edf3;
+  font-size: 20px;
+  color: var(--text);
   margin-bottom: 6px;
 }
 
 .report-header .meta {
-  color: #8b949e;
-  font-size: 14px;
+  color: var(--muted);
+  font-size: 13px;
 }
 
-/* ===== Рубрики ===== */
+/* ===== Rubric ===== */
 .rubric {
-  margin-bottom: 32px;
+  margin-bottom: 28px;
 }
 
 .rubric h2 {
-  color: #e6edf3;
-  font-size: 20px;
-  margin-bottom: 16px;
+  color: var(--text);
+  font-size: 16px;
+  margin-bottom: 14px;
 }
 
 .rubric-count {
-  color: #8b949e;
+  color: var(--faint);
   font-weight: 400;
-  font-size: 16px;
+  font-size: 14px;
 }
 
-/* ===== Сетка карточек ===== */
+/* ===== Cards grid ===== */
 .cards-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
+  gap: 12px;
 }
 
 @media (min-width: 768px) {
@@ -252,104 +174,74 @@ main {
   }
 }
 
-/* ===== Карточка новости ===== */
+/* ===== Card ===== */
 .card {
-  background: #161b22;
-  border: 1px solid #21262d;
-  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   transition: border-color 0.2s;
+  backdrop-filter: blur(10px);
 }
 
 .card:hover {
-  border-color: #58a6ff;
-}
-
-.card-image {
-  height: 140px;
-  overflow: hidden;
-  background: #1c2128;
-}
-
-.card-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  border-color: rgba(13, 238, 243, .25);
 }
 
 .card-body {
-  padding: 16px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   flex: 1;
 }
 
-.card-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.badge {
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.score {
-  font-size: 14px;
-  font-weight: 700;
-}
-
 .card h3 {
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.4;
 }
 
 .card h3 a {
-  color: #c9d1d9;
+  color: var(--text);
   text-decoration: none;
 }
 
 .card h3 a:hover {
-  color: #58a6ff;
+  color: var(--teal);
   text-decoration: underline;
 }
 
-.summary {
-  color: #8b949e;
-  font-size: 13px;
-  flex: 1;
+.desc {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .card-bottom {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid #21262d;
-  padding-top: 10px;
-  font-size: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+  font-size: 11px;
 }
 
 .source {
-  color: #58a6ff;
-  font-weight: 600;
-}
-
-.date {
-  color: #6e7681;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(13, 238, 243, .08);
+  color: var(--teal);
+  font-weight: 500;
 }
 
 /* ===== Footer ===== */
 footer {
-  background: #161b22;
-  border-top: 1px solid #21262d;
-  padding: 20px 0;
+  background: rgba(7, 24, 44, .6);
+  border-top: 1px solid var(--border);
+  padding: 18px 0;
   text-align: center;
-  color: #6e7681;
-  font-size: 13px;
+  color: var(--faint);
+  font-size: 12px;
 }
