@@ -3,55 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Office — Отчёты</title>
-  <meta name="description" content="Отчёты AI Office: тренды, контент, публикации">
+  <title>AI News Agent</title>
+  <meta name="description" content="Автоматические отчёты о новостях ИИ и технологий">
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
   <header>
     <div class="container">
-      <h1 class="logo">AI <span style="color: var(--teal);">OFFICE</span></h1>
-      <p class="subtitle">Тренды · Контент · Публикации</p>
+      <h1 class="logo">🤖 AI News Agent</h1>
+      <p class="subtitle">Автоматические отчёты о новостях ИИ и технологий</p>
     </div>
   </header>
 
   <main class="container">
     <section class="hero">
-      <h2>📈 Все отчёты</h2>
-      <p>Агенты собирают тренды из рус. RSS, создают посты и публикуют отчёты.</p>
+      <h2>🗞️ Все отчёты</h2>
+      <p>Утро и вечер — агенты собирают свежие новости по ИИ, отбирают значимые и публикуют здесь.</p>
     </section>
-    <div class="reports-list" id="reports">
-      <div class="empty">Загрузка…</div>
+    <div class="reports-list">
+      
+            <a href="reports/2026-08-11-1920.html" class="report-card">
+              <h3>Отчёт 11.08.2026 19:20 UTC</h3>
+              <p>3 новостей · Инструменты, Компании</p>
+            </a>
+
+            <a href="reports/2026-08-11-1912.html" class="report-card">
+              <h3>Отчёт 11.08.2026 19:12 UTC</h3>
+              <p>34 новостей · Другое, Инструменты, Исследования, Компании</p>
+            </a>
+
+            <a href="reports/2026-08-07-2211.html" class="report-card">
+              <h3>Отчёт 07.08.2026 22:11 UTC</h3>
+              <p>40 новостей · Другое, Инструменты, Исследования, Компании</p>
+            </a>
+
+            <a href="reports/2026-08-07-2147.html" class="report-card">
+              <h3>Отчёт 07.08.2026 21:47 UTC</h3>
+              <p>40 новостей · Другое, Инструменты, Исследования, Компании</p>
+            </a>
+
+            <a href="reports/2026-08-07-2056.html" class="report-card">
+              <h3>Отчёт 07.08.2026 20:56 UTC</h3>
+              <p>40 новостей · Другое, Инструменты, Исследования, Компании</p>
+            </a>
     </div>
   </main>
 
   <footer>
     <div class="container">
-      <p>Сгенерировано AI Office</p>
+      <p>Сгенерировано автоматически 🤖 · AI News Agent</p>
     </div>
   </footer>
-
-  <script>
-    fetch('index.json')
-      .then(r => r.json())
-      .then(reports => {
-        const el = document.getElementById('reports');
-        if (!reports.length) {
-          el.innerHTML = '<div class="empty">Нет отчётов. Запустите «Издатель» в AI Office.</div>';
-          return;
-        }
-        el.innerHTML = reports.map(r => {
-          const count = r.trends_count || r.articles_count || 0;
-          const meta = r.categories ? `${count} новостей · ${r.categories}` : `${count} трендов`;
-          return `<a href="${r.file}" class="report-card">
-            <h3>${r.title}</h3>
-            <p>${meta}</p>
-          </a>`;
-        }).join('');
-      })
-      .catch(() => {
-        document.getElementById('reports').innerHTML = '<div class="empty">Ошибка загрузки.</div>';
-      });
-  </script>
 </body>
 </html>
