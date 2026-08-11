@@ -1,5 +1,24 @@
 [
   {
+    "title": "Отчёт 11.08.2026 20:27 UTC",
+    "file": "reports/2026-08-11-2027.html",
+    "trends_count": 3,
+    "articles_count": 3,
+    "date": "2026-08-11T20:27:45.953566+00:00"
+  },
+  {
+    "title": "Отчёт 11.08.2026 19:54 UTC",
+    "file": "reports/2026-08-11-1954.html",
+    "trends_count": 10,
+    "date": "2026-08-11T19:54:43.459012+00:00"
+  },
+  {
+    "title": "Отчёт 11.08.2026 19:54 UTC",
+    "file": "reports/2026-08-11-1954.html",
+    "trends_count": 10,
+    "date": "2026-08-11T19:54:26.886842+00:00"
+  },
+  {
     "title": "Отчёт 11.08.2026 19:20 UTC",
     "file": "reports/2026-08-11-1920.html",
     "articles_count": 3,

@@ -19,6 +19,8 @@
     <section class="hero">
       <h2>🗞️ Все отчёты</h2>
       <p>Утро и вечер — агенты собирают свежие новости по ИИ, отбирают значимые и публикуют здесь.</p>
+      <button class="pipeline-btn" id="pipeline-btn">🚀 Хочу новость</button>
+      <div id="pipeline-status" style="margin-top: 10px;"></div>
     </section>
     <div class="reports-list">
       
@@ -54,5 +56,35 @@
       <p>Сгенерировано автоматически 🤖 · AI News Agent</p>
     </div>
   </footer>
+
+  <script>
+    const API = window.location.origin;
+    const btn = document.getElementById('pipeline-btn');
+    const status = document.getElementById('pipeline-status');
+
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      btn.textContent = '⏳ Запускаю…';
+      status.textContent = '🚀 Конвейер: сканер → контент → отчёт и пуш на GitHub…\\nЭто займёт 1-2 минуты. Следите за историей в 3D-офисе.';
+      try {
+        const res = await fetch(API + '/api/pipeline', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({}),
+        });
+        const data = await res.json();
+        if (data.taskId) {
+          status.textContent = '✅ Конвейер запущен (# ' + data.taskId + ').\\nОбновите страницу через 2 минуты — появится свежий отчёт с топ-3 и кнопками «В ВК».';
+        } else {
+          status.textContent = '❌ Ошибка: ' + (data.error || 'неизвестная');
+        }
+      } catch (e) {
+        status.textContent = '❌ Нет связи с офисом (' + e.message + ').\\nЗапустите bridge локально: python bridge/server.py';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🚀 Хочу новость';
+      }
+    });
+  </script>
 </body>
 </html>
