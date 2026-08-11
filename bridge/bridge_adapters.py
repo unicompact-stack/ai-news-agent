@@ -25,6 +25,68 @@ SITE_DIR = REPO_ROOT / "site"
 DATA_DIR = BRIDGE_DIR / "data"
 SEEN_FILE = DATA_DIR / "seen_articles.json"
 
+
+def _push_to_github(emit):
+    """Пушит site/ на GitHub Pages."""
+    emit("status", "running", "Пушу на GitHub…")
+    try:
+        import subprocess
+
+        # Проверяем есть ли токен в .env
+        env_file = REPO_ROOT / "ai-news-agent" / ".env"
+        token = None
+        if env_file.exists():
+            with open(env_file, "r") as f:
+                for line in f:
+                    if line.startswith("GITHUB_TOKEN="):
+                        token = line.split("=", 1)[1].strip()
+                        break
+
+        if not token:
+            emit("status", "running", "Нет GITHUB_TOKEN — пропускаю пуш")
+            return False
+
+        # Меняем remote на URL с токеном (нужен username)
+        remote_url = f"https://unicompact-stack:{token}@github.com/unicompact-stack/ai-news-agent.git"
+        subprocess.run(
+            ["git", "remote", "set-url", "news-agent", remote_url],
+            cwd=str(REPO_ROOT), capture_output=True, timeout=10
+        )
+
+        # git add site/
+        subprocess.run(
+            ["git", "add", "site/"],
+            cwd=str(REPO_ROOT), capture_output=True, timeout=10
+        )
+
+        # git commit
+        subprocess.run(
+            ["git", "commit", "-m", "auto: update reports", "--allow-empty"],
+            cwd=str(REPO_ROOT), capture_output=True, timeout=10
+        )
+
+        # git push
+        result = subprocess.run(
+            ["git", "push", "news-agent", "main"],
+            cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=30
+        )
+
+        # Восстанавливаем remote
+        subprocess.run(
+            ["git", "remote", "set-url", "news-agent", "https://github.com/unicompact-stack/ai-news-agent.git"],
+            cwd=str(REPO_ROOT), capture_output=True, timeout=10
+        )
+
+        if result.returncode == 0:
+            return True
+        else:
+            emit("status", "running", f"Ошибка push: {result.stderr[:200]}")
+            return False
+
+    except Exception as e:
+        emit("status", "running", f"Ошибка push: {e}")
+        return False
+
 # ===== Русскоязычные RSS-источники =====
 TREND_SOURCES = [
     {"name": "Хабр", "url": "https://habr.com/ru/rss/articles/", "tags": ["технологии", "маркетинг", "IT"]},
@@ -198,12 +260,12 @@ def adapter_content_generate(task, emit):
     post_text += "💬 Что думаете? Делитесь опытом в комментариях!\n\n"
     post_text += f"#{' '.join(_extract_hashtags(title + ' ' + desc))}"
 
-    # Генерируем промт для картинки
-    image_prompt = _generate_image_prompt(title, desc)
+    # Ищем картинку через Bing
+    image_url = _find_image_for_post(title, desc)
 
     result = {
         "post": post_text,
-        "image_prompt": image_prompt,
+        "image_url": image_url,
         "trend_title": title,
         "trend_source": source,
     }
@@ -215,9 +277,12 @@ def adapter_content_generate(task, emit):
         json.dump(result, f, ensure_ascii=False, indent=2)
 
     emit("result", "done", {"post_length": len(post_text)})
+    img_info = f"\n🖼️ Картинка: {'найдена' if image_url else 'не найдена'}"
+    if image_url:
+        img_info += f"\n{image_url}"
     return {
         "ok": True,
-        "text": f"✅ Пост готов!\n\n--- Текст поста ---\n{post_text}\n\n--- Промт для картинки ---\n{image_prompt}",
+        "text": f"✅ Пост готов!\n\n--- Текст поста ---\n{post_text}{img_info}",
         "data": result,
     }
 
@@ -241,17 +306,54 @@ def _extract_hashtags(text):
     return list(tags)[:5] or ["#маркетинг", "#тренды"]
 
 
-def _generate_image_prompt(title, description):
-    """Генерирует промт для Кандинского/Мидджурни."""
-    base = f"Modern digital illustration about: {title}. "
-    style = "Clean minimalist style, blue-purple gradient background, professional marketing visual, tech aesthetic, no text, high quality, 4k"
-    if any(w in title.lower() for w in ["ai", "нейросеть", "искусственный интеллект"]):
-        style += ", neural network visualization, glowing nodes"
-    elif any(w in title.lower() for w in ["маркетинг", "реклама", "трафик"]):
-        style += ", growth chart, ascending arrows, business analytics"
-    elif any(w in title.lower() for w in ["контент", "блог", "пост"]):
-        style += ", content creation, social media icons, creative workspace"
-    return base + style
+def _search_image_bing(query, count=5):
+    """Ищет картинки через Bing Images. Возвращает список URL."""
+    try:
+        from urllib.parse import quote_plus
+        url = f"https://www.bing.com/images/search?q={quote_plus(query)}&form=HDRSC2"
+        req = urllib.request.Request(url, headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        })
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            html = resp.read().decode("utf-8", errors="replace")
+
+        murls = re.findall(r'murl&quot;:&quot;(https?://[^&]+)&quot;', html)
+        seen = set()
+        urls = []
+        for u in murls:
+            if u not in seen:
+                seen.add(u)
+                urls.append(u)
+                if len(urls) >= count:
+                    break
+        return urls
+    except Exception as e:
+        print(f"  [!] Ошибка Bing: {e}")
+        return []
+
+
+def _find_image_for_post(title, description=""):
+    """Ищет картинку для поста через Bing. Возвращает URL или None."""
+    stop_words = {"the", "a", "an", "is", "are", "was", "in", "on", "to",
+                  "for", "of", "with", "by", "new", "has", "will", "can"}
+    words = [w for w in re.findall(r'[a-zA-Zа-яА-Я]{3,}', title) if w.lower() not in stop_words]
+    query = " ".join(words[:5]) or title[:50]
+
+    urls = _search_image_bing(query, count=5)
+    for img_url in urls:
+        try:
+            req = urllib.request.Request(img_url, method="HEAD", headers={
+                "User-Agent": "Mozilla/5.0"
+            })
+            with urllib.request.urlopen(req, timeout=8) as resp:
+                ct = resp.headers.get("content-type", "")
+                cl = int(resp.headers.get("content-length", 0))
+                # Некоторые серверы не отдают content-length в HEAD — пропускаем проверку размера
+                if "image" in ct and (cl == 0 or cl > 10000):
+                    return img_url
+        except Exception:
+            continue
+    return None
 
 
 # ===== 3. Издатель =====
@@ -307,7 +409,16 @@ def adapter_report_build(task, emit):
     draft_html = ""
     if draft:
         post_text = esc_html(draft.get("post", ""))
-        img_prompt = esc_html(draft.get("image_prompt", ""))
+        image_url = draft.get("image_url", "")
+        image_section = ""
+        if image_url:
+            image_section = f"""
+      <h3 style="color: #06b6d4; margin-top: 1.5rem; font-size: 14px;">🖼️ Картинка</h3>
+      <div class="card" style="margin-top: 0.5rem;">
+        <div class="card-body">
+          <img src="{esc_html(image_url)}" alt="" style="max-width:100%;border-radius:8px;" onerror="this.style.display='none'">
+        </div>
+      </div>"""
         draft_html = f"""
     <section class="rubric" style="margin-top: 2rem;">
       <h2>📝 Черновик поста</h2>
@@ -315,13 +426,7 @@ def adapter_report_build(task, emit):
         <div class="card-body">
           <pre style="color: rgba(255,255,255,.9); white-space: pre-wrap; word-break: break-word; font-size: 13px;">{post_text}</pre>
         </div>
-      </div>
-      <h3 style="color: #c792ea; margin-top: 1.5rem; font-size: 14px;">🖼️ Промт для картинки</h3>
-      <div class="card" style="margin-top: 0.5rem;">
-        <div class="card-body">
-          <pre style="color: rgba(255,255,255,.48); white-space: pre-wrap; word-break: break-word; font-size: 12px;">{img_prompt}</pre>
-        </div>
-      </div>
+      </div>{image_section}
     </section>"""
 
     page = f"""<!DOCTYPE html>
@@ -385,11 +490,20 @@ def adapter_report_build(task, emit):
     with open(index_file, "w", encoding="utf-8") as f:
         json.dump(reports_meta, f, ensure_ascii=False, indent=2)
 
-    emit("result", "done", {"report": f"reports/{report_id}.html"})
+    # Автопуш на GitHub Pages
+    push_ok = _push_to_github(emit)
+
+    result_text = f"📄 Отчёт создан: reports/{report_id}.html\nТрендов: {len(trends)}"
+    if push_ok:
+        result_text += "\n✅ Запушено на GitHub — сайт обновится через 1-2 мин"
+    else:
+        result_text += "\n⚠️ Не удалось запушить на GitHub (проверьте токен)"
+
+    emit("result", "done", {"report": f"reports/{report_id}.html", "pushed": push_ok})
     return {
         "ok": True,
-        "text": f"📄 Отчёт создан: reports/{report_id}.html\nТрендов: {len(trends)}\nСмотрите: site/",
-        "data": {"report": f"reports/{report_id}.html"},
+        "text": result_text,
+        "data": {"report": f"reports/{report_id}.html", "pushed": push_ok},
     }
 
 
@@ -457,11 +571,11 @@ def adapter_vk_post(task, emit):
 ADAPTERS = {
     "trend_scan": adapter_trend_scan,
     "content_generate": adapter_content_generate,
-    "image_prompt": lambda task, emit: {
-        "ok": True,
-        "text": "Промт генерируется вместе с постом. Используйте «Создать пост».",
-        "data": {},
-    },
     "report_build": adapter_report_build,
     "vk_post": adapter_vk_post,
+    "deploy_site": lambda task, emit: {
+        "ok": True,
+        "text": "Используйте «Собрать отчёт» — он автоматически пушится на GitHub.",
+        "data": {},
+    },
 }

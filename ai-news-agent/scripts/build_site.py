@@ -367,6 +367,21 @@ def main():
         with open(index_file, "r", encoding="utf-8") as f:
             reports_meta = json.load(f)
 
+    # Дедупликация при загрузке: оставляем одну запись на файл,
+    # выбираем с наибольшим числом новостей (самую полную)
+    best_by_file = {}
+    for r in reports_meta:
+        key = r.get("file", "")
+        if not key:
+            continue
+        cur = best_by_file.get(key)
+        if cur is None or r.get("articles_count", 0) > cur.get("articles_count", 0):
+            best_by_file[key] = r
+    reports_meta = list(best_by_file.values())
+
+    # Убираем текущий файл (заменим его свежим)
+    reports_meta = [r for r in reports_meta if r.get("file") != report_file]
+
     reports_meta.insert(0, {
         "title": report_title,
         "file": report_file,
@@ -375,6 +390,9 @@ def main():
         "date": now.isoformat(),
     })
 
+    # Сортируем по дате (новые сверху), на случай дублей
+    reports_meta.sort(key=lambda r: r.get("date", ""), reverse=True)
+
     with open(index_file, "w", encoding="utf-8") as f:
         json.dump(reports_meta, f, ensure_ascii=False, indent=2)
 
@@ -382,6 +400,43 @@ def main():
         f.write(index_page_html(reports_meta))
 
     print(f"  [+] Обновлён site/index.html (всего отчётов: {len(reports_meta)})")
+
+    # Создаём report.html — редирект на последний отчёт
+    # (чтобы ссылка .../report.html всегда показывала свежий отчёт)
+    last_report = reports_meta[0]["file"] if reports_meta else "index.html"
+    report_redirect = """<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="0; url=%s">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI News Agent — Последний отчёт</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="index.html" class="logo">🤖 AI News Agent</a>
+      <p class="subtitle">Автоматические отчёты о новостях ИИ и технологий</p>
+    </div>
+  </header>
+  <main class="container">
+    <div class="hero">
+      <h2>📄 Последний отчёт</h2>
+      <p>Перенаправляем на свежий отчёт... <a href="%s">Открыть сейчас</a></p>
+    </div>
+  </main>
+  <footer>
+    <div class="container">
+      <p>Сгенерировано автоматически 🤖 · AI News Agent</p>
+    </div>
+  </footer>
+</body>
+</html>""" % (last_report, last_report)
+
+    with open(os.path.join(SITE_DIR, "report.html"), "w", encoding="utf-8") as f:
+        f.write(report_redirect)
+    print(f"  [+] Обновлён site/report.html (редирект на {last_report})")
 
     for it in new_items:
         published.add(it["guid"])
